@@ -24,6 +24,31 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Dev helper: si estamos en localhost y no hay sesión, inyectar un usuario y token de prueba
+    // Esto facilita ver las páginas protegidas durante el desarrollo. Será sólo activo en localhost
+    // y se recarga la app para que AuthService lea el storage en su constructor.
+    try {
+      if ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') && !localStorage.getItem('token')) {
+        const devUser = {
+          id: 'local-1',
+          email: 'test@example.com',
+          fullName: 'Usuario Local',
+          role: 'Client'
+        };
+        const payload = { exp: Math.floor(Date.now() / 1000) + 3600 }; // +1 hora
+        const fakeToken = 'header.' + btoa(JSON.stringify(payload)) + '.signature';
+        localStorage.setItem('user', JSON.stringify(devUser));
+        localStorage.setItem('token', fakeToken);
+        // Recargar para que AuthService cargue el usuario desde localStorage
+        setTimeout(() => location.reload(), 50);
+      }
+    } catch (e) {
+      // no bloquear si btoa o localStorage falla
+      console.warn('Dev session helper: no se pudo crear sesión automática', e);
+    }
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
       this.updateMenu();
