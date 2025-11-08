@@ -1,0 +1,75 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/client/accounts"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle de Cuenta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ng-container *ngIf="account">
+    <!-- Información de la cuenta -->
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>{{ account.type }}</ion-card-title>
+        <ion-card-subtitle>{{ account.accountNumber }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="account-balance">
+          <span class="balance-label">Saldo Disponible</span>
+          <span class="balance-amount">
+            {{ account.balance | currency:account.currency }}
+          </span>
+        </div>
+        <ion-badge [color]="account.status === 'Activa' ? 'success' : 'warning'">
+          {{ account.status }}
+        </ion-badge>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Acciones rápidas -->
+    <ion-grid>
+      <ion-row>
+        <ion-col>
+          <ion-button expand="block" [routerLink]="['/client/transfers/new']" [queryParams]="{sourceAccount: account.id}">
+            <ion-icon slot="start" name="swap-horizontal"></ion-icon>
+            Transferir
+          </ion-button>
+        </ion-col>
+        <ion-col>
+          <ion-button expand="block" [routerLink]="['/client/payments/new']" [queryParams]="{sourceAccount: account.id}">
+            <ion-icon slot="start" name="card"></ion-icon>
+            Pagar
+          </ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+    <!-- Lista de transacciones -->
+    <div class="transactions-section">
+      <h3>Últimas Transacciones</h3>
+      <ion-list>
+        <ion-item *ngFor="let transaction of transactions">
+          <ion-icon slot="start" [name]="transaction.type === 'Transferencia' ? 'swap-horizontal' : 'card'"
+                  [color]="transaction.type === 'Transferencia' ? 'primary' : 'success'">
+          </ion-icon>
+          <ion-label>
+            <h3>{{ transaction.type }}</h3>
+            <p>{{ transaction.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+          </ion-label>
+          <div slot="end" class="transaction-amount">
+            <span [class.negative]="transaction.type === 'Transferencia'">
+              {{ transaction.amount | currency:transaction.currency }}
+            </span>
+            <ion-badge [color]="transaction.status === 'Exitosa' ? 'success' : 'warning'">
+              {{ transaction.status }}
+            </ion-badge>
+          </div>
+        </ion-item>
+      </ion-list>
+    </div>
+  </ng-container>
+
+  <ion-loading [isOpen]="isLoading" message="Cargando detalles..."></ion-loading>
+</ion-content>

@@ -1,0 +1,263 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/client/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Nueva Transferencia</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="transfer-container">
+    
+    <!-- Formulario de transferencia -->
+    <form [formGroup]="transferForm">
+      
+      <!-- Cuenta origen -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <ion-icon name="wallet"></ion-icon>
+          Cuenta Origen
+        </h3>
+        
+        <ion-item class="input-item">
+          <ion-label position="floating">Seleccione cuenta *</ion-label>
+          <ion-select 
+            formControlName="sourceAccountId"
+            (ionChange)="onSourceAccountChange()"
+            [disabled]="isLoading">
+            <ion-select-option 
+              *ngFor="let account of accounts" 
+              [value]="account.id">
+              {{ getAccountDisplay(account) }} - {{ formatCurrency(account.balance, account.currency) }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+      </div>
+
+      <!-- Tipo de destino -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <ion-icon name="send"></ion-icon>
+          Transferir a
+        </h3>
+        
+        <ion-segment 
+          [(ngModel)]="destinationType" 
+          [ngModelOptions]="{standalone: true}"
+          (ionChange)="onDestinationTypeChange($any($event).detail.value)">
+          <ion-segment-button value="own">
+            <ion-label>Cuenta Propia</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="third">
+            <ion-label>Tercero</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+
+        <!-- Cuenta propia -->
+        <ion-item 
+          class="input-item" 
+          *ngIf="destinationType === 'own'">
+          <ion-label position="floating">Cuenta destino *</ion-label>
+          <ion-select 
+            formControlName="destinationAccountId"
+            [disabled]="isLoading || !transferForm.get('sourceAccountId')?.value">
+            <ion-select-option 
+              *ngFor="let account of ownAccounts" 
+              [value]="account.id">
+              {{ getAccountDisplay(account) }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <!-- Beneficiario -->
+        <ion-item 
+          class="input-item" 
+          *ngIf="destinationType === 'third'">
+          <ion-label position="floating">Beneficiario *</ion-label>
+          <ion-select 
+            formControlName="beneficiaryId"
+            [disabled]="isLoading">
+            <ion-select-option 
+              *ngFor="let beneficiary of beneficiaries" 
+              [value]="beneficiary.id">
+              {{ getBeneficiaryDisplay(beneficiary) }}
+            </ion-select-option>
+          </ion-select>
+        </ion-item>
+
+        <ion-button 
+          *ngIf="destinationType === 'third'"
+          fill="clear" 
+          size="small" 
+          routerLink="/client/beneficiaries/new"
+          class="add-beneficiary-btn">
+          <ion-icon slot="start" name="add-circle"></ion-icon>
+          Agregar Beneficiario
+        </ion-button>
+      </div>
+
+      <!-- Monto y descripción -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <ion-icon name="cash"></ion-icon>
+          Detalles
+        </h3>
+        
+        <ion-item class="input-item">
+          <ion-label position="floating">Monto *</ion-label>
+          <ion-input
+            type="number"
+            formControlName="amount"
+            placeholder="0.00"
+            [disabled]="isLoading">
+          </ion-input>
+        </ion-item>
+
+        <ion-item class="input-item">
+          <ion-label position="floating">Descripción (opcional)</ion-label>
+          <ion-textarea
+            formControlName="description"
+            rows="3"
+            maxlength="200"
+            placeholder="Ej: Pago de alquiler"
+            [disabled]="isLoading">
+          </ion-textarea>
+        </ion-item>
+      </div>
+
+      <!-- Programar transferencia -->
+      <div class="form-section">
+        <ion-item class="toggle-item" lines="none">
+          <ion-icon name="calendar" slot="start"></ion-icon>
+          <ion-label>
+            <h3>Programar transferencia</h3>
+            <p>Transferencia a futuro (máx. 90 días)</p>
+          </ion-label>
+          <ion-toggle 
+            [(ngModel)]="scheduleTransfer"
+            [ngModelOptions]="{standalone: true}"
+            (ionChange)="toggleSchedule()">
+          </ion-toggle>
+        </ion-item>
+
+        <ion-item 
+          class="input-item" 
+          *ngIf="scheduleTransfer">
+          <ion-label position="floating">Fecha de ejecución *</ion-label>
+          <ion-datetime-button datetime="scheduledDateTime"></ion-datetime-button>
+          
+          <ion-modal [keepContentsMounted]="true">
+            <ng-template>
+              <ion-datetime
+                id="scheduledDateTime"
+                formControlName="scheduledDate"
+                presentation="date"
+                [min]="minDate"
+                [max]="maxDate">
+              </ion-datetime>
+            </ng-template>
+          </ion-modal>
+        </ion-item>
+      </div>
+
+      <!-- Botón de preview -->
+      <ion-button
+        expand="block"
+        (click)="previewTransfer()"
+        [disabled]="isLoading || transferForm.invalid"
+        class="preview-button">
+        <ion-icon slot="start" name="calculator"></ion-icon>
+        Calcular Transferencia
+      </ion-button>
+    </form>
+
+    <!-- Preview de la transferencia -->
+    <div class="preview-section" *ngIf="showPreview && transferPreview">
+      <ion-card class="preview-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="information-circle"></ion-icon>
+            Resumen de Transferencia
+          </ion-card-title>
+        </ion-card-header>
+
+        <ion-card-content>
+          <div class="preview-item">
+            <span class="label">Cuenta Origen:</span>
+            <span class="value">
+              {{ transferPreview.sourceAccount.type }} 
+              *{{ transferPreview.sourceAccount.accountNumber.slice(-4) }}
+            </span>
+          </div>
+
+          <div class="preview-item">
+            <span class="label">Saldo Actual:</span>
+            <span class="value">
+              {{ formatCurrency(transferPreview.balanceBefore, transferPreview.sourceAccount.currency) }}
+            </span>
+          </div>
+
+          <div class="preview-divider"></div>
+
+          <div class="preview-item">
+            <span class="label">Monto:</span>
+            <span class="value amount">
+              {{ formatCurrency(transferPreview.amount, transferPreview.sourceAccount.currency) }}
+            </span>
+          </div>
+
+          <div class="preview-item">
+            <span class="label">Comisión:</span>
+            <span class="value commission">
+              {{ formatCurrency(transferPreview.commission, transferPreview.sourceAccount.currency) }}
+            </span>
+          </div>
+
+          <div class="preview-item total">
+            <span class="label">Total a Debitar:</span>
+            <span class="value">
+              {{ formatCurrency(transferPreview.totalAmount, transferPreview.sourceAccount.currency) }}
+            </span>
+          </div>
+
+          <div class="preview-divider"></div>
+
+          <div class="preview-item">
+            <span class="label">Saldo Después:</span>
+            <span class="value final-balance">
+              {{ formatCurrency(transferPreview.balanceAfter, transferPreview.sourceAccount.currency) }}
+            </span>
+          </div>
+
+          <div 
+            class="alert-box" 
+            *ngIf="transferPreview.requiresApproval">
+            <ion-icon name="warning"></ion-icon>
+            <p>Esta transferencia requiere aprobación por superar el límite establecido.</p>
+          </div>
+
+          <div class="preview-actions">
+            <ion-button
+              expand="block"
+              (click)="executeTransfer()"
+              [disabled]="isLoading"
+              color="success">
+              <ion-icon slot="start" name="checkmark-circle"></ion-icon>
+              {{ scheduleTransfer ? 'Programar' : 'Confirmar' }} Transferencia
+            </ion-button>
+
+            <ion-button
+              expand="block"
+              fill="outline"
+              (click)="showPreview = false"
+              [disabled]="isLoading">
+              Modificar
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+  </div>
+</ion-content>

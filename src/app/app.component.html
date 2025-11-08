@@ -1,0 +1,46 @@
+<ion-app>
+  <ion-split-pane contentId="main-content">
+    @if (currentUser) {
+      <ion-menu contentId="main-content" type="overlay">
+        <ion-header>
+          <ion-toolbar color="primary">
+            <ion-title>Menú</ion-title>
+          </ion-toolbar>
+        </ion-header>
+        <ion-content>
+          <ion-list>
+            <ion-list-header>
+              <ion-label>
+                <h2>{{ currentUser.fullName }}</h2>
+                <p>{{ currentUser.role }}</p>
+              </ion-label>
+            </ion-list-header>
+
+            @for (item of menuItems; track item.url) {
+              <ion-menu-toggle auto-hide="false">
+                <ion-item 
+                  [routerLink]="item.url" 
+                  routerLinkActive="selected"
+                  routerDirection="root"
+                  lines="none"
+                  detail="false">
+                  <ion-icon slot="start" [name]="item.icon"></ion-icon>
+                  <ion-label>{{ item.title }}</ion-label>
+                </ion-item>
+              </ion-menu-toggle>
+            }
+          </ion-list>
+
+          <ion-list>
+            <ion-item button (click)="logout()" lines="none" detail="false">
+              <ion-icon slot="start" name="log-out" color="danger"></ion-icon>
+              <ion-label color="danger">Cerrar Sesión</ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-content>
+      </ion-menu>
+    }
+
+    <ion-router-outlet id="main-content"></ion-router-outlet>
+  </ion-split-pane>
+</ion-app>

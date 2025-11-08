@@ -1,0 +1,25 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/client/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Mis Cuentas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item *ngFor="let account of accounts">
+      <ion-label>
+        <h2>{{ account.type }}</h2>
+        <p>{{ account.accountNumber }}</p>
+        <p>Saldo: {{ account.balance | currency:account.currency }}</p>
+      </ion-label>
+      <ion-badge slot="end" [color]="account.status === 'Activa' ? 'success' : 'warning'">
+        {{ account.status }}
+      </ion-badge>
+    </ion-item>
+  </ion-list>
+
+  <ion-loading [isOpen]="isLoading" message="Cargando cuentas..."></ion-loading>
+</ion-content>

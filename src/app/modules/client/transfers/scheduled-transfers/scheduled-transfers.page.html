@@ -1,0 +1,66 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/client/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Transferencias Programadas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Lista de transferencias programadas -->
+  <ion-list *ngIf="scheduledTransfers.length > 0">
+    <ion-item *ngFor="let transfer of scheduledTransfers" class="transfer-item">
+      <ion-label>
+        <h2>{{ transfer.description || 'Transferencia Programada' }}</h2>
+        <p class="amount">{{ formatCurrency(transfer.amount, transfer.currency) }}</p>
+        <div class="details">
+          <p>
+            <ion-icon name="calendar-outline"></ion-icon>
+            {{ transfer.scheduledDate ? formatDate(transfer.scheduledDate) : '-' }}
+          </p>
+          <p>
+            <ion-icon name="time-outline"></ion-icon>
+            {{ transfer.scheduledDate ? formatTime(transfer.scheduledDate) : '-' }}
+          </p>
+        </div>
+        <div class="account-info">
+          <p>
+            <ion-icon name="swap-horizontal-outline"></ion-icon>
+            De: {{ transfer.sourceAccountId ? (transfer.sourceAccountId | slice:-4) : '—' }}
+            A: {{ transfer.destinationAccountId ? (transfer.destinationAccountId | slice:-4) : '—' }}
+          </p>
+        </div>
+      </ion-label>
+      
+      <div slot="end" class="actions">
+        <ion-button 
+          fill="clear" 
+          color="danger"
+          (click)="cancelTransfer(transfer.id)">
+          <ion-icon name="close-circle-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+    </ion-item>
+  </ion-list>
+
+  <!-- Estado vacío -->
+  <div *ngIf="!isLoading && scheduledTransfers.length === 0" class="empty-state">
+    <ion-icon name="calendar"></ion-icon>
+    <h3>No hay transferencias programadas</h3>
+    <p>Las transferencias que programes aparecerán aquí</p>
+    <ion-button 
+      routerLink="/client/transfers/new" 
+      expand="block" 
+      fill="clear">
+      Programar una transferencia
+    </ion-button>
+  </div>
+
+  <!-- Loading state -->
+  <ion-loading [isOpen]="isLoading" message="Cargando transferencias..."></ion-loading>
+</ion-content>

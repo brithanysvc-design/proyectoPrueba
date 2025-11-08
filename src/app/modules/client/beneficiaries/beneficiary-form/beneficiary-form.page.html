@@ -1,0 +1,130 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/client/beneficiaries"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ isEditing ? 'Editar' : 'Nuevo' }} Beneficiario</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="beneficiaryForm" (ngSubmit)="onSubmit()">
+    <ion-list>
+      <!-- Datos personales -->
+      <ion-item-group>
+        <ion-item-divider>
+          <ion-label>Datos Personales</ion-label>
+        </ion-item-divider>
+
+        <ion-item>
+          <ion-label position="stacked">Nombre completo *</ion-label>
+          <ion-input
+            formControlName="name"
+            type="text"
+            placeholder="Ej: Juan Pérez González">
+          </ion-input>
+          <ion-note slot="error" *ngIf="showError('name')">
+            {{ getErrorMessage('name') }}
+          </ion-note>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Alias</ion-label>
+          <ion-input
+            formControlName="alias"
+            type="text"
+            placeholder="Ej: Juan P.">
+          </ion-input>
+          <ion-note slot="error" *ngIf="showError('alias')">
+            {{ getErrorMessage('alias') }}
+          </ion-note>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Correo electrónico</ion-label>
+          <ion-input
+            formControlName="email"
+            type="email"
+            placeholder="Ej: juan.perez@email.com">
+          </ion-input>
+          <ion-note slot="error" *ngIf="showError('email')">
+            {{ getErrorMessage('email') }}
+          </ion-note>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Teléfono</ion-label>
+          <ion-input
+            formControlName="phone"
+            type="tel"
+            placeholder="Ej: +1234567890">
+          </ion-input>
+          <ion-note slot="error" *ngIf="showError('phone')">
+            {{ getErrorMessage('phone') }}
+          </ion-note>
+        </ion-item>
+      </ion-item-group>
+
+      <!-- Datos bancarios -->
+      <ion-item-group>
+        <ion-item-divider>
+          <ion-label>Datos Bancarios</ion-label>
+        </ion-item-divider>
+
+        <ion-item>
+          <ion-label position="stacked">Banco *</ion-label>
+          <ion-select
+            formControlName="bankId"
+            placeholder="Selecciona un banco"
+            interface="action-sheet"
+            [interfaceOptions]="{ header: 'Selecciona un banco' }">
+            <ion-select-option 
+              *ngFor="let bank of banks" 
+              [value]="bank.id">
+              {{ bank.name }}
+            </ion-select-option>
+          </ion-select>
+          <ion-note slot="error" *ngIf="showError('bankId')">
+            {{ getErrorMessage('bankId') }}
+          </ion-note>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Tipo de cuenta *</ion-label>
+          <ion-select
+            formControlName="accountType"
+            placeholder="Selecciona el tipo de cuenta"
+            interface="action-sheet"
+            [interfaceOptions]="{ header: 'Tipo de cuenta' }">
+            <ion-select-option value="SAVINGS">Ahorro</ion-select-option>
+            <ion-select-option value="CHECKING">Corriente</ion-select-option>
+          </ion-select>
+          <ion-note slot="error" *ngIf="showError('accountType')">
+            {{ getErrorMessage('accountType') }}
+          </ion-note>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Número de cuenta *</ion-label>
+          <ion-input
+            formControlName="accountNumber"
+            type="text"
+            placeholder="Ingresa el número de cuenta">
+          </ion-input>
+          <ion-note slot="error" *ngIf="showError('accountNumber')">
+            {{ getErrorMessage('accountNumber') }}
+          </ion-note>
+        </ion-item>
+      </ion-item-group>
+    </ion-list>
+
+    <div class="ion-padding">
+      <ion-button
+        expand="block"
+        type="submit"
+        [disabled]="!beneficiaryForm.valid || isSubmitting">
+        {{ isSubmitting ? 'Guardando...' : (isEditing ? 'Actualizar' : 'Agregar') }} Beneficiario
+      </ion-button>
+    </div>
+  </form>
+</ion-content>

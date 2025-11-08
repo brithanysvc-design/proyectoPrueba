@@ -1,0 +1,154 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Mi Banca</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon slot="icon-only" name="log-out"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="dashboard-container" *ngIf="!isLoading">
+    
+    <!-- Header con saludo -->
+    <div class="welcome-section">
+      <h2>¡Hola, {{ currentUser?.fullName }}!</h2>
+      <p>Bienvenido a tu banca en línea</p>
+    </div>
+
+    <!-- Resumen de saldos totales -->
+    <div class="balance-summary">
+      <ion-card class="balance-card">
+        <ion-card-content>
+          <div class="balance-item">
+            <span class="balance-label">Balance Total CRC</span>
+            <span class="balance-amount primary">
+              {{ formatCurrency(totalBalanceCRC, Currency.CRC) }}
+            </span>
+          </div>
+          <div class="balance-item">
+            <span class="balance-label">Balance Total USD</span>
+            <span class="balance-amount success">
+              {{ formatCurrency(totalBalanceUSD, Currency.USD) }}
+            </span>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- Grid de cuentas -->
+    <div class="accounts-section">
+      <div class="section-header">
+        <h3>Mis Cuentas</h3>
+        <ion-button fill="clear" size="small" (click)="viewAllAccounts()">
+          Ver todas
+          <ion-icon slot="end" name="chevron-forward"></ion-icon>
+        </ion-button>
+      </div>
+
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12" size-md="6" *ngFor="let account of accounts">
+            <ion-card class="account-card" (click)="viewAccountDetail(account)">
+              <ion-card-content>
+                <div class="account-header">
+                  <ion-icon 
+                    [name]="getAccountTypeIcon(account.type)" 
+                    class="account-icon">
+                  </ion-icon>
+                  <ion-badge [color]="account.status === 'Activa' ? 'success' : 'danger'">
+                    {{ account.status }}
+                  </ion-badge>
+                </div>
+                <div class="account-info">
+                  <span class="account-type">{{ account.type }}</span>
+                  <span class="account-number">**** {{ account.accountNumber.slice(-4) }}</span>
+                </div>
+                <div class="account-balance">
+                  <span class="balance-label">Saldo Disponible</span>
+                  <span class="balance-amount">
+                    {{ formatCurrency(account.balance, account.currency) }}
+                  </span>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+
+    <!-- Acciones rápidas -->
+    <div class="quick-actions-section">
+      <h3>Acciones Rápidas</h3>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="4" *ngFor="let action of quickActions">
+            <div 
+              class="action-item" 
+              (click)="navigateTo(action.route)">
+              <div class="action-icon-container" [attr.data-color]="action.color">
+                <ion-icon [name]="action.icon"></ion-icon>
+              </div>
+              <span class="action-label">{{ action.label }}</span>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+
+    <!-- Transacciones recientes -->
+    <div class="transactions-section">
+      <div class="section-header">
+        <h3>Actividad Reciente</h3>
+        <ion-button fill="clear" size="small" (click)="viewAllTransactions()">
+          Ver todo
+          <ion-icon slot="end" name="chevron-forward"></ion-icon>
+        </ion-button>
+      </div>
+
+      <ion-list *ngIf="recentTransactions.length > 0" lines="none">
+        <ion-item *ngFor="let transaction of recentTransactions" class="transaction-item">
+          <ion-icon 
+            slot="start" 
+            [name]="getTransactionIcon(transaction.type)"
+            [color]="getTransactionColor(transaction.type)">
+          </ion-icon>
+          <ion-label>
+            <h3>{{ transaction.type }}</h3>
+            <p>{{ formatDate(transaction.createdAt) }}</p>
+          </ion-label>
+          <div slot="end" class="transaction-amount">
+            <span [class.negative]="transaction.type === 'Transferencia'">
+              {{ transaction.type === 'Transferencia' ? '-' : '' }}
+              {{ formatCurrency(transaction.amount, transaction.currency) }}
+            </span>
+            <ion-badge [color]="transaction.status === 'Exitosa' ? 'success' : 'warning'">
+              {{ transaction.status }}
+            </ion-badge>
+          </div>
+        </ion-item>
+      </ion-list>
+
+      <div *ngIf="recentTransactions.length === 0" class="empty-state">
+        <ion-icon name="document-text-outline"></ion-icon>
+        <p>No hay transacciones recientes</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Loading state -->
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Cargando información...</p>
+  </div>
+</ion-content>

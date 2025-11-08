@@ -1,0 +1,88 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/client/dashboard"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Mis Beneficiarios</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/client/beneficiaries/new">
+        <ion-icon slot="icon-only" name="add"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <ion-toolbar>
+    <ion-searchbar
+      placeholder="Buscar beneficiario"
+      [(ngModel)]="searchTerm"
+      (ionInput)="onSearchChange($event)"
+      animated="true">
+    </ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Lista de beneficiarios -->
+  <ion-list *ngIf="filteredBeneficiaries.length > 0">
+    <ion-item-sliding *ngFor="let beneficiary of filteredBeneficiaries">
+      <ion-item class="beneficiary-item">
+        <ion-label>
+          <h2>{{ beneficiary.alias || beneficiary.name }}</h2>
+          <div class="beneficiary-details">
+            <p>
+              <ion-icon name="person-outline"></ion-icon>
+              {{ beneficiary.name }}
+            </p>
+            <p>
+              <ion-icon name="business-outline"></ion-icon>
+              {{ beneficiary.bankName }}
+            </p>
+            <p>
+              <ion-icon name="card-outline"></ion-icon>
+              {{ formatAccountNumber(beneficiary.accountNumber) }}
+            </p>
+          </div>
+        </ion-label>
+        <ion-badge 
+          slot="end" 
+          [color]="getBadgeColor(beneficiary.status)">
+          {{ beneficiary.status }}
+        </ion-badge>
+      </ion-item>
+
+      <ion-item-options side="end">
+        <ion-item-option
+          color="primary"
+          [routerLink]="['/client/beneficiaries/edit', beneficiary.id]">
+          <ion-icon slot="icon-only" name="create"></ion-icon>
+        </ion-item-option>
+        <ion-item-option
+          color="danger"
+          (click)="deleteBeneficiary(beneficiary)">
+          <ion-icon slot="icon-only" name="trash"></ion-icon>
+        </ion-item-option>
+      </ion-item-options>
+    </ion-item-sliding>
+  </ion-list>
+
+  <!-- Estado vacío -->
+  <div *ngIf="!isLoading && filteredBeneficiaries.length === 0" class="empty-state">
+    <ion-icon name="people"></ion-icon>
+    <h3>No hay beneficiarios</h3>
+    <p *ngIf="searchTerm">No se encontraron beneficiarios que coincidan con tu búsqueda</p>
+    <p *ngIf="!searchTerm">Agrega beneficiarios para realizar transferencias más rápido</p>
+    <ion-button 
+      routerLink="/client/beneficiaries/new" 
+      expand="block" 
+      fill="clear">
+      Agregar Beneficiario
+    </ion-button>
+  </div>
+
+  <!-- Loading state -->
+  <ion-loading [isOpen]="isLoading" message="Cargando beneficiarios..."></ion-loading>
+</ion-content>

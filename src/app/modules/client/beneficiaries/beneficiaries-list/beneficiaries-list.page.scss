@@ -1,0 +1,49 @@
+.beneficiary-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+}
+
+.beneficiary-details {
+  margin-top: 8px;
+  color: var(--ion-color-medium);
+  font-size: 14px;
+
+  p {
+    display: flex;
+    align-items: center;
+    margin: 4px 0;
+
+    ion-icon {
+      margin-right: 8px;
+      font-size: 16px;
+    }
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  text-align: center;
+
+  ion-icon {
+    font-size: 64px;
+    color: var(--ion-color-medium);
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    margin: 0 0 8px;
+    color: var(--ion-color-dark);
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0 0 24px;
+    color: var(--ion-color-medium);
+  }
+}

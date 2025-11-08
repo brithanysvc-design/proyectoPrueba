@@ -1,0 +1,94 @@
+
+.register-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.header-section {
+  text-align: center;
+  margin-bottom: 30px;
+
+  .header-icon {
+    font-size: 60px;
+    color: var(--ion-color-primary);
+    margin-bottom: 15px;
+  }
+
+  h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--ion-color-dark);
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: var(--ion-color-medium);
+    font-size: 14px;
+  }
+}
+
+.input-item {
+  margin-bottom: 10px;
+  --border-radius: 8px;
+  --background: var(--ion-color-light);
+}
+
+.error-message {
+  color: var(--ion-color-danger);
+  font-size: 12px;
+  margin: 5px 15px 15px 15px;
+  display: flex;
+  align-items: center;
+
+  ion-icon {
+    font-size: 16px;
+    margin-right: 5px;
+  }
+}
+
+.password-requirements {
+  margin: 10px 15px 20px 15px;
+  padding: 12px;
+  background: var(--ion-color-warning-tint);
+  border-radius: 8px;
+  border-left: 3px solid var(--ion-color-warning);
+
+  .requirements-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ion-color-warning-shade);
+    margin: 0 0 8px 0;
+  }
+
+  .requirement {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    color: var(--ion-color-danger);
+    margin-bottom: 4px;
+
+    ion-icon {
+      font-size: 14px;
+      margin-right: 6px;
+    }
+  }
+}
+
+.register-button {
+  margin-top: 25px;
+  --border-radius: 8px;
+  height: 50px;
+  font-weight: 600;
+}
+
+.links-container {
+  text-align: center;
+  margin-top: 20px;
+
+  p {
+    font-size: 14px;
+    color: var(--ion-color-medium);
+    margin-bottom: 5px;
+  }
+}
